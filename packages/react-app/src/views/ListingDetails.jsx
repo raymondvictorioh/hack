@@ -1,15 +1,20 @@
 import React, {useEffect, useState} from "react";
+import {
+    BrowserRouter as Router,
+    useParams
+  } from "react-router-dom";
 import { Card, Avatar, Button } from "antd";
 import { referralList } from "./tempData/referralList";
 
 const { Meta } = Card;
-const itemDetail = () => {
-    return referralList.filter(obj => obj.id == 1)[0]
-}
 
 
-function ListingDetails({match}) {
-
+function ListingDetails() {
+    let { id } = useParams();
+    const itemDetail = () => {
+        return referralList.filter(obj => obj.id == id)[0]
+    }
+    
     const [size, setSize] = "large"
   return (
     <div>
