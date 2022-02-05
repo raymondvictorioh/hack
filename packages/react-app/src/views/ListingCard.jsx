@@ -10,23 +10,28 @@ function ListingCard({project}) {
   const {title, desc, imageUrl, id} = project
 
   return (
+
+    <Link to={`project/${id}`}> 
     <div>
-      <Link to={`project/${id}`}> 
 
       <Card
         style={{ width: 300, margin:10 }}
         cover={<img alt="example" src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png" />}
         hoverable
       >
+
         <Meta
           avatar={<Avatar src={imageUrl} />}
           title={title}
           description={desc}
         />
+
       </Card>
+      </div>
+
       </Link>
-  
-    </div>
+
+
   );
 }
 

@@ -271,6 +271,7 @@ function App(props) {
           <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} />
         </Route>
         <Route exact path="/referrals">
+          
         </Route>
         <Route path="/project/:id">
           {<ListingDetails/>}

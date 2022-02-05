@@ -4,6 +4,8 @@ import { useContractReader } from "eth-hooks";
 import { ListingCard, ExampleUI } from "../views"
 import { ethers } from "ethers";
 import { referralList } from "./tempData/referralList";
+import { Row, Col } from 'antd';
+
 /**
  * web3 props can be passed from '../App.jsx' into your local view component for use
  * @param {*} yourLocalBalance balance on current network
@@ -14,13 +16,14 @@ function Home({ yourLocalBalance, readContracts }) {
   // you can also use hooks locally in your component of choice
   // in this case, let's keep track of 'purpose' variable from our contract
   const purpose = useContractReader(readContracts, "YourContract", "purpose");
-  const allRefferalListings = referralList.map(project => <ListingCard project={project}/> )
+  const allRefferalListings = referralList.map(project => <Col><ListingCard project={project}/> </Col>)
 
   return (
     <div>
-      <div style={{ margin: 32 }}>
-        {allRefferalListings}
-      </div>
+      <Row>
+      {allRefferalListings}
+
+      </Row>
     </div>
   );
 }
