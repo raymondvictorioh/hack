@@ -275,8 +275,8 @@ function App(props) {
             <ListingDetails address={address} userSigner={userSigner} web3Modal={web3Modal} loadWeb3Modal={loadWeb3Modal} />
           </Route>
 
-          <Route path="/buyer/:nft_id/:address">
-            <BuyingDetails />
+          <Route path="/buy/:nft_id">
+            <BuyingDetails userSigner={userSigner} />
           </Route>
 
           <Route exact path="/debug">
