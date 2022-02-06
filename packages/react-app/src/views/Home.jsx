@@ -22,7 +22,6 @@ function Home({ yourLocalBalance, readContracts }) {
     <div>
       <Row>
       {allRefferalListings}
-
       </Row>
     </div>
   );
