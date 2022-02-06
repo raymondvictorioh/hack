@@ -20,7 +20,7 @@ function Home({ yourLocalBalance, readContracts, userSigner }) {
   const allRefferalListings = referralList.map(project => <Col><ListingCard project={project}/> </Col>)
   const contract = useContractManager(userSigner);
   const [listings, setListings] = useState([])
-
+  console.log("AI")
   useEffect(() => {
     if(!contract) return;
     (async () => {
@@ -29,6 +29,8 @@ function Home({ yourLocalBalance, readContracts, userSigner }) {
         console.log("LISTINGS", listings)
         setListings(listings)
       }catch(err){
+        console.log("ERROR LISTINGS", listings)
+
         console.error(err)
       }
     })();

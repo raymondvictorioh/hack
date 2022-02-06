@@ -14,7 +14,7 @@ export const useContractManager = (signer) => {
   try {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     contractManager = useContract({
-      addressOrName: "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
+      addressOrName: "0x59b670e9fA9D0A427751Af201D676719a970857b",
       contractInterface: wagmiABI,
       signerOrProvider: signerProvider,
     })
