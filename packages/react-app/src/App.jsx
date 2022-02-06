@@ -17,7 +17,7 @@ const connectors = ({ chainId }) => {
   ];
 };
 
-const provider = ({ chainId }) => new providers.JsonRpcProvider(chain.hardhat);
+const provider = ({ chainId }) => new providers.JsonRpcProvider(chain.hardhat.rpcUrls[0]);
 
 function App(props) {
   return (

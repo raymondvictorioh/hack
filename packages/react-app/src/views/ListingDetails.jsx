@@ -29,7 +29,7 @@ function ListingDetails() {
   const baseuri = useRef("");
   //SET LISTING DUMMY NFT
   const _tokenAddr = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-  const _tokenId = 2;
+  const _tokenId = 9;
   const _listPrice = ethers.utils.parseEther("0.00005");
   const _promoterReward = 15;
   const _buyerReward = 20;

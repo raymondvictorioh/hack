@@ -49,10 +49,12 @@ function BuyingDetails() {
 
   const buyNFT = useCallback(async () => {
     console.log("LIST");
+    console.log(listingDetail)
+    console.log(listingDetail.listPrice.toString())
     console.log("LIST PRICE", ethers.utils.formatEther(listingDetail.listPrice));
     if (!nft_id || !contract) return;
     await contract.buyNFT(nft_id, shillerAddress, {
-      value: listingDetail.listPrice,
+      value: listingDetail.listPrice.toString(),
     });
   }, [contract, nft_id, shillerAddress]);
 
