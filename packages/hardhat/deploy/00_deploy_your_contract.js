@@ -1,6 +1,8 @@
 // deploy/00_deploy_your_contract.js
 
 const { ethers } = require("hardhat");
+const fs = require("fs");
+const path = require("path");
 
 const localChainId = "31337";
 
@@ -26,7 +28,14 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   });
 
   // Getting a previously deployed contract
-  const WagmiContract = await ethers.getContract("WagmiContract", deployer);
+  const wagmiContract = await ethers.getContract("WagmiContract", deployer);
+
+  // Writes ABI file for client side usage
+  fs.writeFileSync(
+    path.join(__dirname, "../../react-app/src/abi/wagmi.json"),
+    wagmiContract.interface.format("json")
+  );
+
   /*  await YourContract.setPurpose("Hello");
   
     To take ownership of yourContract using the ownable library uncomment next line and add the 
