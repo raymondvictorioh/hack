@@ -29,7 +29,7 @@ contract WagmiContract is ReentrancyGuard {
   }
 
   // the NFTs that are being sold on Wagmi.
-  uint256 listingId = 0;
+  uint256 private listingId = 0;
   mapping(uint256 => Listing) listings;
 
   // the set of registered promoters. mapping used for O(1) access.
@@ -66,10 +66,10 @@ contract WagmiContract is ReentrancyGuard {
     uint256 _listPrice,
     uint256 _promoterReward,
     uint256 _buyerReward
-  ) external payable returns (uint256) {
-    uint256 expectedDeposit = _listPrice.mul(
-      _promoterReward.add(_buyerReward).div(100)
-    );
+  ) external payable {
+    uint256 expectedDeposit = _listPrice
+      .mul(_promoterReward.add(_buyerReward))
+      .div(100);
     require(msg.value == expectedDeposit, "Expected deposit is wrong");
 
     listings[listingId] = Listing({
@@ -83,7 +83,8 @@ contract WagmiContract is ReentrancyGuard {
       resourceUri: ERC721(_tokenAddr).tokenURI(_tokenId)
     });
     emit NewListing(listingId);
-    return listingId++;
+
+    listingId++;
   }
 
   /**
