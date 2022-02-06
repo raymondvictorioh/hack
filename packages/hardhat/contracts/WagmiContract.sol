@@ -94,7 +94,7 @@ contract WagmiContract is ReentrancyGuard {
         resourceName: ERC721(_tokenAddr).name()
     }));
     
-    approveWagmi(_tokenAddr, _tokenId);
+    //approveWagmi(_tokenAddr, _tokenId);
     emit NewListing(listingId);
     return listingId++;
   }

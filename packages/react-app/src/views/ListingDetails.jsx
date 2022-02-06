@@ -1,4 +1,4 @@
-import Rect, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { BrowserRouter as Router, useParams } from "react-router-dom";
 import { Card, Image, Button, Typography } from "antd";
 import { referralList } from "./tempData/referralList";
@@ -17,24 +17,17 @@ function ListingDetails({ address, id, userSigner, web3Modal, loadWeb3Modal }) {
   let { nft_id } = useParams();
   const itemDetail = () => referralList.filter(obj => obj.id == nft_id)[0];
   const [uniqueUrl, setUniqueUrl] = useState(`${process.env.PUBLIC_URL}/dark-thsdsdseme.css`);
-  const [listingDetail, setListingDetail] = useState({
-    tokenAddr: "123",
-    ownerAddr: "123",
-    tokenId: 8,
-    listPrice: BigNumber.from("5"),
-    promoterReward: BigNumber.from("5"),
-    buyerReward: BigNumber.from("5"),
-  });
+  const [listingDetail, setListingDetail] = useState();
 
-  console.log(userSigner)
+  console.log(userSigner);
   const contract = useContractManager(userSigner);
   const baseuri = useRef("");
   //SET LISTING DUMMY NFT
   const _tokenAddr = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
   const _tokenId = 8;
-  const _listPrice = ethers.utils.parseEther("100");
-  const _promoterReward = 5;
-  const _buyerReward = 10;
+  const _listPrice = ethers.utils.parseEther("0.00005");
+  const _promoterReward = 15;
+  const _buyerReward = 20;
   useEffect(() => {
     contract.on("NewListing", listingId => {
       console.log("New Listing");
@@ -52,7 +45,7 @@ function ListingDetails({ address, id, userSigner, web3Modal, loadWeb3Modal }) {
     if (!contract) return;
     (async () => {
       try {
-        const listing = await contract.getListing(0);
+        const listing = await contract.getListing(nft_id);
         console.log(listing);
         setListingDetail(listing);
         fetch(`${listing.resourceUri}`)
@@ -129,7 +122,8 @@ function ListingDetails({ address, id, userSigner, web3Modal, loadWeb3Modal }) {
           type="primary"
           size={size}
           onClick={async () => {
-            console.log("CLICK!")
+            if (!contract) return;
+            console.log("CLICK!");
             await contract.listNFT(_tokenAddr, _tokenId, _listPrice, _promoterReward, _buyerReward);
           }}
         >
@@ -168,11 +162,13 @@ function ListingDetails({ address, id, userSigner, web3Modal, loadWeb3Modal }) {
 
           <div>
             <b>Unique Referral Url : </b>
-            <Title copyable level={5}>
-              {`${baseuri.current}/buyer/${nft_id}?adddress=${address}`}
-            </Title>
+            
           </div>
-
+          <Button>
+              <Title copyable mark level={5}>
+                {`${baseuri.current}/buy/${nft_id}?shiller=${address}`}
+              </Title>
+            </Button>
         </div>
       )}
     </div>
