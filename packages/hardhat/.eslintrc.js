@@ -1,23 +1,24 @@
 module.exports = {
   env: {
+    browser: false,
+    es2021: true,
     mocha: true,
+    node: true,
   },
-  extends: ["airbnb", "plugin:prettier/recommended"],
-  plugins: ["babel"],
+  plugins: ["@typescript-eslint"],
+  extends: [
+    "standard",
+    "plugin:prettier/recommended",
+    "plugin:node/recommended",
+  ],
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    ecmaVersion: 12,
+  },
   rules: {
-    "prettier/prettier": ["error"],
-    "import/extensions": [
+    "node/no-unsupported-features/es-syntax": [
       "error",
-      "ignorePackages",
-      {
-        js: "never",
-        ts: "never",
-      },
+      { ignores: ["modules"] },
     ],
-    "import/prefer-default-export": "off",
-    "prefer-destructuring": "off",
-    "prefer-template": "off",
-    "no-console": "off",
-    "func-names": "off",
   },
 };
