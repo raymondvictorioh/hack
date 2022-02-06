@@ -48,7 +48,7 @@ contract WagmiContract is ReentrancyGuard {
    * @param _tokenAddr address of the NFT contract.
    * @param _tokenId id of the token on the NFT contract.
    */
-  function approveWagmi(address _tokenAddr, uint256 _tokenId) external {
+  function approveWagmi(address _tokenAddr, uint256 _tokenId) internal {
     require(IERC721(_tokenAddr).ownerOf(_tokenId) == msg.sender, "Token is not owned by caller");
     IERC721(_tokenAddr).approve(address(this), _tokenId);
   }
@@ -93,7 +93,8 @@ contract WagmiContract is ReentrancyGuard {
         resourceUri: ERC721(_tokenAddr).tokenURI(_tokenId),
         resourceName: ERC721(_tokenAddr).name()
     }));
-
+    
+    approveWagmi(_tokenAddr, _tokenId);
     emit NewListing(listingId);
     return listingId++;
   }
