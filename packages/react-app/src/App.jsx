@@ -275,8 +275,8 @@ function App(props) {
             {<ListingDetails address={address} userSigner={userSigner} />}
           </Route>
 
-          <Route path="/buyer/:nft_id/:address">
-            <BuyingDetails />
+          <Route path="/buy/:nft_id">
+            <BuyingDetails userSigner={userSigner} />
           </Route>
 
           <Route exact path="/debug">
