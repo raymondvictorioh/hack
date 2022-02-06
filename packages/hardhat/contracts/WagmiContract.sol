@@ -9,6 +9,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract WagmiContract is ReentrancyGuard {
   using SafeMath for uint256;
   struct Listing {
+    // Identifier
+    uint256 id;
     // a boolean to check that the listing exists.
     bool exists;
     // address of the NFT contract.
@@ -25,6 +27,8 @@ contract WagmiContract is ReentrancyGuard {
     uint256 buyerReward;
     // Token Image URI
     string resourceUri;
+    // Metadata name
+    string resourceName;
   }
 
   // the NFTs that are being sold on Wagmi.
@@ -78,6 +82,7 @@ contract WagmiContract is ReentrancyGuard {
     );
     require(msg.value == expectedDeposit, "Expected deposit is wrong");
     listings.push(Listing({
+        id: listingId,
         exists: true,
         tokenAddr: _tokenAddr,
         tokenId: _tokenId,
@@ -85,7 +90,8 @@ contract WagmiContract is ReentrancyGuard {
         listPrice: _listPrice,
         promoterReward: _promoterReward,
         buyerReward: _buyerReward,
-        resourceUri: ERC721(_tokenAddr).tokenURI(_tokenId)
+        resourceUri: ERC721(_tokenAddr).tokenURI(_tokenId),
+        resourceName: ERC721(_tokenAddr).name()
     }));
 
     emit NewListing(listingId);
