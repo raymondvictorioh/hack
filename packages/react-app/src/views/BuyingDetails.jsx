@@ -56,7 +56,6 @@ function BuyingDetails({ address, logoutOfWeb3Modal, web3Modal, loadWeb3Modal })
       <br></br>
      
       <div> {modalButtons}</div>
-
       {purchase}
     </div>
   );
