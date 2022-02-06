@@ -2,8 +2,8 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect, use } from "chai";
 import { MockContract } from "ethereum-waffle";
 import { ethers, waffle } from "hardhat";
-import IERC721 from "../artifacts/@openzeppelin/contracts/token/ERC721/IERC721.sol/IERC721.json";
-import { IERC721 as ERC721Interface, WagmiContract } from "../typechain";
+import ERC721 from "../artifacts/@openzeppelin/contracts/token/ERC721/ERC721.sol/ERC721.json";
+import { WagmiContract } from "../typechain";
 
 const { solidity, deployMockContract } = waffle;
 const provider = waffle.provider;
@@ -38,15 +38,15 @@ describe("WagmiContract", function () {
 
   before(async () => {
     [deployer, nftOwner, promoter, buyer] = await ethers.getSigners();
+
+    mockErc721Contract = await deployMockContract(deployer, ERC721.abi);
+    mockErc721Contract.mock.tokenURI.returns("ipfs://abcd");
   });
 
-  // redeploy on every test.
   beforeEach(async () => {
     const WagmiContract = await ethers.getContractFactory("WagmiContract");
     contract = await WagmiContract.deploy();
     await contract.deployed();
-
-    mockErc721Contract = await deployMockContract(deployer, IERC721.abi);
   });
 
   it("should list a new NFT", async () => {
@@ -64,10 +64,9 @@ describe("WagmiContract", function () {
       .withArgs(1);
   });
 
-  // it("should revert if deposit value is wrong", async () => {
-  //   await expect(createNewListing({ depositValue: 0 })).to.be.revertedWith(
-  //     contract,
-  //     "NewListing"
-  //   );
-  // });
+  it("should revert if deposit value is wrong", async () => {
+    await expect(createNewListing({ depositValue: 0 })).to.be.revertedWith(
+      "Expected deposit is wrong"
+    );
+  });
 });
