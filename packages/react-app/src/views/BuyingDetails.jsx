@@ -14,10 +14,10 @@ function useQuery() {
   return React.useMemo(() => new URLSearchParams(search), [search]);
 }
 
-function BuyingDetails({ address, userSigner }) {
+function BuyingDetails() {
   let { nft_id } = useParams();
   const queryParams = useQuery();
-  const contract = useContractManager(userSigner);
+  const contract = useContractManager();
   const [listingDetail, setListingDetail] = useState();
   const [resourceUri, setResourceUri] = useState("");
 
@@ -48,11 +48,11 @@ function BuyingDetails({ address, userSigner }) {
   }, [contract]);
 
   const buyNFT = useCallback(async () => {
-    console.log("LIST")
-    console.log("LIST PRICE", ethers.utils.formatEther(listingDetail.listPrice))
+    console.log("LIST");
+    console.log("LIST PRICE", ethers.utils.formatEther(listingDetail.listPrice));
     if (!nft_id || !contract) return;
     await contract.buyNFT(nft_id, shillerAddress, {
-      value:listingDetail.listPrice,
+      value: listingDetail.listPrice,
     });
   }, [contract, nft_id, shillerAddress]);
 
@@ -60,7 +60,7 @@ function BuyingDetails({ address, userSigner }) {
   console.log("shiller address", shillerAddress);
   return (
     <div>
-            <h1>BUY</h1>
+      <h1>BUY</h1>
 
       <Image width={200} src={resourceUri} />
       {!!listingDetail && (
