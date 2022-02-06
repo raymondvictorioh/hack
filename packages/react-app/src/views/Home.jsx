@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useContractReader } from "eth-hooks";
-import { ListingCard, ExampleUI } from "../views"
+import { ListingCard, ExampleUI } from "../views";
 import { ethers } from "ethers";
 import { referralList } from "./tempData/referralList";
-import { Row, Col } from 'antd';
+import { Row, Col, Empty } from "antd";
 import { useContractManager } from "../hooks/useContractManager";
 
 /**
@@ -18,31 +18,41 @@ function Home({ yourLocalBalance, readContracts, userSigner }) {
   // in this case, let's keep track of 'purpose' variable from our contract
   const purpose = useContractReader(readContracts, "YourContract", "purpose");
   const contract = useContractManager(userSigner);
-  const [listings, setListings] = useState([])
+  const [listings, setListings] = useState([]);
 
-  const allRefferalListings = listings.map(project => <Col><ListingCard project={project}/> </Col>)
+  const allRefferalListings = listings.map(project => (
+    <Col>
+      <ListingCard project={project} />
+    </Col>
+  ));
 
-  console.log("AI")
+  console.log("AI");
   useEffect(() => {
-    if(!contract) return;
+    if (!contract) return;
     (async () => {
       try {
-        const listings = await contract.getListings()
-        console.log("LISTINGS", listings)
-        setListings(listings)
-      }catch(err){
-        console.log("ERROR LISTINGS", listings)
+        const listings = await contract.getListings();
+        console.log("LISTINGS", listings);
+        setListings(listings);
+      } catch (err) {
+        console.log("ERROR LISTINGS", listings);
 
-        console.error(err)
+        console.error(err);
       }
     })();
-  },[])
-  
+  }, []);
+
   return (
     <div>
-      <Row>
-      {allRefferalListings}
-      </Row>
+      {allRefferalListings.length == 0 ? (
+        <div style={{ margin: 100 }}>
+          <Empty 
+            description="No NFTs are being listed for referral"
+          />
+        </div>
+      ) : (
+        <Row> {allRefferalListings} </Row>
+      )}
     </div>
   );
 }

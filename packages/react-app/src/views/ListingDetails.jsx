@@ -17,14 +17,21 @@ function ListingDetails({ address, id, userSigner, web3Modal, loadWeb3Modal }) {
   let { nft_id } = useParams();
   const itemDetail = () => referralList.filter(obj => obj.id == nft_id)[0];
   const [uniqueUrl, setUniqueUrl] = useState(`${process.env.PUBLIC_URL}/dark-thsdsdseme.css`);
-  const [listingDetail, setListingDetail] = useState();
+  const [listingDetail, setListingDetail] = useState({
+    tokenAddr: "123",
+    tokenId:2,
+    listPrice:ethers.utils.parseEther("0.00005"),
+    promoterReward: BigNumber.from("15"),
+    buyerReward:BigNumber.from("20"),
+
+  });
 
   console.log(userSigner);
   const contract = useContractManager(userSigner);
   const baseuri = useRef("");
   //SET LISTING DUMMY NFT
-  const _tokenAddr = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-  const _tokenId = 8;
+  const _tokenAddr = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+  const _tokenId = 2;
   const _listPrice = ethers.utils.parseEther("0.00005");
   const _promoterReward = 15;
   const _buyerReward = 20;
