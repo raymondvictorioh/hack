@@ -3,8 +3,10 @@ pragma solidity >=0.8.0;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract WagmiContract {
+contract WagmiContract is ReentrancyGuard {
   using SafeMath for uint256;
 
   struct Listing {
@@ -22,6 +24,8 @@ contract WagmiContract {
     uint256 promoterReward;
     // discount given to buyers if they are referred, in base 10^2.
     uint256 buyerReward;
+    // Token Image URI
+    string resourceUri;
   }
 
   // the NFTs that are being sold on Wagmi.
@@ -36,10 +40,13 @@ contract WagmiContract {
 
   /**
    * Gives WagmiContract the authority to manage the owner's NFT.
-   * @param tokenAddr address of the NFT contract.
-   * @param tokenId id of the token on the NFT contract.
+   * @param _tokenAddr address of the NFT contract.
+   * @param _tokenId id of the token on the NFT contract.
    */
-  function approveWagmi(address tokenAddr, uint256 tokenId) external {}
+  function approveWagmi(address _tokenAddr, uint256 _tokenId) external {
+    require(IERC721(_tokenAddr).ownerOf(_tokenId) == msg.sender, "Token is not owned by caller");
+    IERC721(_tokenAddr).approve(address(this), _tokenId);
+  }
 
   /**
    * Lists an NFT on the Wagmi marketplace.
@@ -69,7 +76,8 @@ contract WagmiContract {
       ownerAddr: msg.sender,
       listPrice: _listPrice,
       promoterReward: _promoterReward,
-      buyerReward: _buyerReward
+      buyerReward: _buyerReward,
+      resourceUri: ERC721(_tokenAddr).tokenURI(_tokenId)
     });
     emit NewListing(listingId);
     return listingId++;
@@ -111,5 +119,30 @@ contract WagmiContract {
    * @param _promoterAddr address of the referrer. the null address (0x0)
    * is used if the NFT is bought without a promoter address.
    */
-  function buyNFT(uint256 _listingId, address _promoterAddr) external payable {}
+  function buyNFT(uint256 _listingId, address _promoterAddr) external payable nonReentrant {
+    require(_listingId <= listingId, "Invalid _listingId");
+    
+    Listing storage listing = listings[_listingId];
+    require(listing.exists, "Listing does not exist anymore");
+    require(msg.value >= listing.listPrice, "Buyer amount is below listed price");
+    
+    address tokenOperator = IERC721(listing.tokenAddr).getApproved(listing.tokenId);
+    require(tokenOperator == address(this), "Contract is not approved to send NFT"); 
+
+    // Transfer commission
+    if (_promoterAddr != address(0)) {
+      uint promoterRewardFee = listing.promoterReward.mul(listing.listPrice).div(100);
+      uint buyerRewardFee = listing.buyerReward.mul(listing.buyerReward).div(100);
+
+      payable(_promoterAddr).transfer(promoterRewardFee);
+      (bool success, ) = msg.sender.call{ value: buyerRewardFee }("");
+      require(success, "Sending reward to buyer failed");
+    }
+
+    // TODO: Replace with safeTransferFrom by checking ERC721Receiver implementer
+    IERC721(listing.tokenAddr).transferFrom(listing.ownerAddr, msg.sender, listing.tokenId);
+    payable(listing.ownerAddr).transfer(listing.listPrice);
+
+    emit BoughtListing(_listingId);
+  }
 }
