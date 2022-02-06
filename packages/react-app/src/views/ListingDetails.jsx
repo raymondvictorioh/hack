@@ -11,14 +11,25 @@ import {useContractManager} from "../contracts/useContractManager"
 
 const { Meta } = Card;
 
-function ListingDetails({ address }) {
+function ListingDetails({ address, id }) {
   let { nft_id } = useParams();
-  const itemDetail = () => {
-    return referralList.filter(obj => obj.id == nft_id)[0];
-  };
+  const itemDetail = () => referralList.filter(obj => obj.id == nft_id)[0];
+
+  const [listingDetail, setListingDetail] = useState([])
 
   const contract = useContractManager()
-  console.log(contract.getListing(1))
+
+  const listingId = id
+
+  // IIFE
+  useEffect(() => {
+    (async () => {
+      const listing = await contract.getListing(1)
+      console.log('listing', listing)
+      setListingDetail(listing)
+    })()
+  }, [])
+
 
   const [size, setSize] = "large";
   const [uniqueUrl, setUniqueUrl] = useState(`${process.env.PUBLIC_URL}/dark-thsdsdseme.css`)
