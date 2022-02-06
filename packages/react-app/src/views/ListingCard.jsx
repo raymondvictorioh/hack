@@ -3,12 +3,14 @@ import React from "react";
 import {
   Link,
 } from "react-router-dom";
+
 const { Meta } = Card;
 
 
 function ListingCard({project}) {
   const {title, desc, imageUrl, id} = project
 
+  
   return (
 
     <Link to={`project/${id}`}> 

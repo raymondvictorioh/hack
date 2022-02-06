@@ -4,7 +4,10 @@ import { Card, Image, Button } from "antd";
 import { referralList } from "./tempData/referralList";
 import { Link } from "react-router-dom";
 import {NETWORKS} from "../constants"
-
+import wagmiABI from "../abi/wagmi.json"
+import {useContractRead} from 'wagmi'
+import { ethers } from "../../../hardhat/node_modules/ethers/lib";
+import {useContractManager} from "../contracts/useContractManager"
 
 const { Meta } = Card;
 
@@ -14,9 +17,12 @@ function ListingDetails({ address }) {
     return referralList.filter(obj => obj.id == nft_id)[0];
   };
 
+  const contract = useContractManager()
+  console.log(contract.getListing(1))
+
   const [size, setSize] = "large";
   const [uniqueUrl, setUniqueUrl] = useState(`${process.env.PUBLIC_URL}/dark-thsdsdseme.css`)
-
+  // console.log(data, error, loading)
   return (
     <div>
       <Image width={200} src={itemDetail().imageUrl} />
