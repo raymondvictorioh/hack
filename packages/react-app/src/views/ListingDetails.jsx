@@ -34,7 +34,7 @@ function ListingDetails({ address }) {
                 "Test"
             )}
         >
-          Promote
+          Sign Up as Promoter
         </Button>
       </div>
       <br></br>
