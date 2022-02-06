@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract WagmiContract is ReentrancyGuard {
   using SafeMath for uint256;
-
   struct Listing {
     // a boolean to check that the listing exists.
     bool exists;
@@ -29,8 +28,10 @@ contract WagmiContract is ReentrancyGuard {
   }
 
   // the NFTs that are being sold on Wagmi.
-  uint256 private listingId = 0;
-  mapping(uint256 => Listing) listings;
+  uint256 listingId = 0;
+
+  // index (listingId) => Listing
+  Listing[] listings;
 
   // the set of registered promoters. mapping used for O(1) access.
   mapping(address => bool) promoters;
@@ -44,11 +45,16 @@ contract WagmiContract is ReentrancyGuard {
    * @param _tokenId id of the token on the NFT contract.
    */
   function approveWagmi(address _tokenAddr, uint256 _tokenId) external {
-    require(
-      IERC721(_tokenAddr).ownerOf(_tokenId) == msg.sender,
-      "Token is not owned by caller"
-    );
+    require(IERC721(_tokenAddr).ownerOf(_tokenId) == msg.sender, "Token is not owned by caller");
     IERC721(_tokenAddr).approve(address(this), _tokenId);
+  }
+
+  /**
+   * Gets all the listings on the platform
+   * TODO: Limit listings
+   */
+  function getListings() external view returns (Listing[] memory) {
+    return listings;
   }
 
   /**
@@ -66,25 +72,24 @@ contract WagmiContract is ReentrancyGuard {
     uint256 _listPrice,
     uint256 _promoterReward,
     uint256 _buyerReward
-  ) external payable {
-    uint256 expectedDeposit = _listPrice
-      .mul(_promoterReward.add(_buyerReward))
-      .div(100);
+  ) external payable returns (uint256) {
+    uint256 expectedDeposit = _listPrice.mul(
+      _promoterReward.add(_buyerReward).div(100)
+    );
     require(msg.value == expectedDeposit, "Expected deposit is wrong");
+    listings.push(Listing({
+        exists: true,
+        tokenAddr: _tokenAddr,
+        tokenId: _tokenId,
+        ownerAddr: msg.sender,
+        listPrice: _listPrice,
+        promoterReward: _promoterReward,
+        buyerReward: _buyerReward,
+        resourceUri: ERC721(_tokenAddr).tokenURI(_tokenId)
+    }));
 
-    listings[listingId] = Listing({
-      exists: true,
-      tokenAddr: _tokenAddr,
-      tokenId: _tokenId,
-      ownerAddr: msg.sender,
-      listPrice: _listPrice,
-      promoterReward: _promoterReward,
-      buyerReward: _buyerReward,
-      resourceUri: ERC721(_tokenAddr).tokenURI(_tokenId)
-    });
     emit NewListing(listingId);
-
-    listingId++;
+    return listingId++;
   }
 
   /**
@@ -97,6 +102,7 @@ contract WagmiContract is ReentrancyGuard {
     view
     returns (Listing memory)
   {
+    require(_listingId <= listingId, "Invalid listing id");
     require(listings[_listingId].exists == true, "listing does not exist");
     return listings[_listingId];
   }
@@ -106,6 +112,7 @@ contract WagmiContract is ReentrancyGuard {
    * @param _listingId id of the listing.
    */
   function removeListing(uint256 _listingId) external {
+    require(_listingId <= listingId, "Invalid listing id");
     require(listings[_listingId].exists == true, "listing does not exist");
     delete listings[_listingId];
   }
@@ -123,49 +130,28 @@ contract WagmiContract is ReentrancyGuard {
    * @param _promoterAddr address of the referrer. the null address (0x0)
    * is used if the NFT is bought without a promoter address.
    */
-  function buyNFT(uint256 _listingId, address _promoterAddr)
-    external
-    payable
-    nonReentrant
-  {
-    require(_listingId <= listingId, "Invalid _listingId");
-
+  function buyNFT(uint256 _listingId, address _promoterAddr) external payable nonReentrant {
+    require(_listingId <= listingId, "Invalid listing id");
+    
     Listing storage listing = listings[_listingId];
     require(listing.exists, "Listing does not exist anymore");
-    require(
-      msg.value >= listing.listPrice,
-      "Buyer amount is below listed price"
-    );
-
-    address tokenOperator = IERC721(listing.tokenAddr).getApproved(
-      listing.tokenId
-    );
-    require(
-      tokenOperator == address(this),
-      "Contract is not approved to send NFT"
-    );
+    require(msg.value >= listing.listPrice, "Buyer amount is below listed price");
+    
+    address tokenOperator = IERC721(listing.tokenAddr).getApproved(listing.tokenId);
+    require(tokenOperator == address(this), "Contract is not approved to send NFT"); 
 
     // Transfer commission
     if (_promoterAddr != address(0)) {
-      uint256 promoterRewardFee = listing
-        .promoterReward
-        .mul(listing.listPrice)
-        .div(100);
-      uint256 buyerRewardFee = listing.buyerReward.mul(listing.buyerReward).div(
-        100
-      );
+      uint promoterRewardFee = listing.promoterReward.mul(listing.listPrice).div(100);
+      uint buyerRewardFee = listing.buyerReward.mul(listing.buyerReward).div(100);
 
       payable(_promoterAddr).transfer(promoterRewardFee);
-      (bool success, ) = msg.sender.call{value: buyerRewardFee}("");
+      (bool success, ) = msg.sender.call{ value: buyerRewardFee }("");
       require(success, "Sending reward to buyer failed");
     }
 
     // TODO: Replace with safeTransferFrom by checking ERC721Receiver implementer
-    IERC721(listing.tokenAddr).transferFrom(
-      listing.ownerAddr,
-      msg.sender,
-      listing.tokenId
-    );
+    IERC721(listing.tokenAddr).transferFrom(listing.ownerAddr, msg.sender, listing.tokenId);
     payable(listing.ownerAddr).transfer(listing.listPrice);
 
     emit BoughtListing(_listingId);
