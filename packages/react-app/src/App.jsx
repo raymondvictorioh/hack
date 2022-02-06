@@ -272,7 +272,7 @@ function App(props) {
 
           <Route path="/project/:nft_id">
             <MenuBar />
-            {<ListingDetails address={address} userSigner={userSigner} />}
+            <ListingDetails address={address} userSigner={userSigner} web3Modal={web3Modal} loadWeb3Modal={loadWeb3Modal} />
           </Route>
 
           <Route path="/buy/:nft_id">

@@ -3,10 +3,14 @@ import wagmiABI from "../abi/wagmi.json"
 import { ethers } from "../../../hardhat/node_modules/ethers/lib";
 
 export const useContractManager = (signer) => {
+  console.log('signer', signer)
 
   // const provider = useProvider()
-  const provider = new ethers.providers.JsonRpcProvider()
-  console.log("useSigner",  provider.getSigner())
+
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const metamaskSigner = provider.getSigner();
+
+
 
   const signerProvider = signer ?? provider
   let contractManager
@@ -14,7 +18,7 @@ export const useContractManager = (signer) => {
   try {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     contractManager = useContract({
-      addressOrName: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+      addressOrName: "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c",
       contractInterface: wagmiABI,
       signerOrProvider: signerProvider,
     })
