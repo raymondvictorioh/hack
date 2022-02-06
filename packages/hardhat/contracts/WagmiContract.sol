@@ -33,11 +33,18 @@ contract WagmiContract {
 
   /**
    * Gives WagmiContract the authority to manage the owner's NFT.
+   * @param tokenAddr address of the NFT contract.
+   * @param tokenId id of the token on the NFT contract.
    */
   function approveWagmi(address tokenAddr, uint256 tokenId) external {}
 
   /**
    * Lists an NFT on the Wagmi marketplace.
+   * @param tokenAddr address of the NFT contract.
+   * @param tokenId id of the token on the NFT contract.
+   * @param listPrice price of the NFT to be sold at.
+   * @param promoterReward commission given to promoters for referring people.
+   * @param buyerReward discount given to buyers if they are referred.
    */
   function listNFT(
     address tokenAddr,
@@ -49,6 +56,8 @@ contract WagmiContract {
 
   /**
    * Retrieves the information of a listing on the Wagmi marketplace.
+   * @param listingId id of the listing.
+   * @return the information of the listing.
    */
   function getListing(uint256 listingId)
     external
@@ -58,6 +67,7 @@ contract WagmiContract {
 
   /**
    * Delist an NFT from the Wagmi marketplace.
+   * @param listingId id of the listing.
    */
   function removeListing(uint256 listingId) external {}
 
@@ -68,6 +78,9 @@ contract WagmiContract {
 
   /**
    * Purchase an NFT.
+   * @param listingId id of the listing.
+   * @param promoterAddr address of the referrer. the null address (0x0)
+   * is used if the NFT is bought without a promoter address.
    */
   function buyNFT(uint256 listingId, address promoterAddr) external payable {}
 }
