@@ -7,8 +7,8 @@ import { NETWORKS } from "../constants";
 import wagmiABI from "../abi/wagmi.json";
 import { useContractRead } from "wagmi";
 import { ethers } from "../../../hardhat/node_modules/ethers/lib";
-import { useContractManager } from "../contracts/useContractManager";
-const { Text, Paragraph } = Typography;
+import { useContractManager } from "../hooks/useContractManager";
+const { Text, Paragraph, Title } = Typography;
 const { Meta } = Card;
 const size = "large";
 function ListingDetails({ address, id, userSigner }) {
@@ -19,9 +19,7 @@ function ListingDetails({ address, id, userSigner }) {
   const [listingDetail, setListingDetail] = useState(null);
   const contract = useContractManager(userSigner);
 
-  const baseuri = useRef(
-    ''
-  )
+  const baseuri = useRef("");
   // //SET LISTING DUMMY NFT
   // const _tokenAddr = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
   // const _tokenId = 8
@@ -79,12 +77,11 @@ function ListingDetails({ address, id, userSigner }) {
   }, [contract]);
 
   useEffect(() => {
-    baseuri.current = window.location.host
-  },[])
+    baseuri.current = window.location.host;
+  }, []);
 
   return (
     <div>
-      
       <Image width={200} src={resourceUri} />
       <h1>{listingDetail?.name}</h1>
       {!!listingDetail && (
@@ -106,30 +103,30 @@ function ListingDetails({ address, id, userSigner }) {
           </div>
           <div>
             <b>Image Url : </b>
-            <a href={resourceUri} target="_blank">{resourceUri}</a>
+            <a href={resourceUri} target="_blank">
+              {resourceUri}
+            </a>
           </div>
-
+          <br></br>
 
           <div>
+            <Button type="primary" size={size} onClick={() => setUniqueUrl("Test")}>
+              Sign Up as Promoter
+            </Button>
+          </div>
+          <br></br>
+        
+        
+          <div>
             <b>Unique Referral Url : </b>
-            <Text copyable>{`${baseuri.current}/buyer/${nft_id}?adddress=${address}`}</Text>
+
+            <Title copyable level={5}>
+            {`${baseuri.current}/buyer/${nft_id}?adddress=${address}`}
+            </Title>
+
           </div>
         </div>
       )}
-
-      <div>
-        <Button type="primary" size={size} onClick={() => setUniqueUrl("Test")}>
-          Promote
-        </Button>
-      </div>
-      <br></br>
-      <div>
-        <Link to={`/buyer/${nft_id}/${address}`}>
-          <Button type="primary" size={size}>
-            Buyer Link
-          </Button>
-        </Link>
-      </div>
     </div>
   );
 }
