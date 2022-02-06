@@ -24,6 +24,8 @@ contract WagmiContract is ReentrancyGuard {
     uint256 promoterReward;
     // discount given to buyers if they are referred, in base 10^2.
     uint256 buyerReward;
+    // Token Image URI
+    string resourceUri;
   }
 
   // the NFTs that are being sold on Wagmi.
@@ -74,7 +76,8 @@ contract WagmiContract is ReentrancyGuard {
       ownerAddr: msg.sender,
       listPrice: _listPrice,
       promoterReward: _promoterReward,
-      buyerReward: _buyerReward
+      buyerReward: _buyerReward,
+      resourceUri: ERC721(_tokenAddr).tokenURI(_tokenId)
     });
     emit NewListing(listingId);
     return listingId++;
