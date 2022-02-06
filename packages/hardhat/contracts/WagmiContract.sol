@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract WagmiContract is ReentrancyGuard {
   using SafeMath for uint256;
-
   struct Listing {
     // a boolean to check that the listing exists.
     bool exists;
@@ -30,7 +29,9 @@ contract WagmiContract is ReentrancyGuard {
 
   // the NFTs that are being sold on Wagmi.
   uint256 listingId = 0;
-  mapping(uint256 => Listing) listings;
+
+  // index (listingId) => Listing
+  Listing[] listings;
 
   // the set of registered promoters. mapping used for O(1) access.
   mapping(address => bool) promoters;
@@ -46,6 +47,14 @@ contract WagmiContract is ReentrancyGuard {
   function approveWagmi(address _tokenAddr, uint256 _tokenId) external {
     require(IERC721(_tokenAddr).ownerOf(_tokenId) == msg.sender, "Token is not owned by caller");
     IERC721(_tokenAddr).approve(address(this), _tokenId);
+  }
+
+  /**
+   * Gets all the listings on the platform
+   * TODO: Limit listings
+   */
+  function getListings() external view returns (Listing[] memory) {
+    return listings;
   }
 
   /**
@@ -68,17 +77,17 @@ contract WagmiContract is ReentrancyGuard {
       _promoterReward.add(_buyerReward).div(100)
     );
     require(msg.value == expectedDeposit, "Expected deposit is wrong");
+    listings.push(Listing({
+        exists: true,
+        tokenAddr: _tokenAddr,
+        tokenId: _tokenId,
+        ownerAddr: msg.sender,
+        listPrice: _listPrice,
+        promoterReward: _promoterReward,
+        buyerReward: _buyerReward,
+        resourceUri: ERC721(_tokenAddr).tokenURI(_tokenId)
+    }));
 
-    listings[listingId] = Listing({
-      exists: true,
-      tokenAddr: _tokenAddr,
-      tokenId: _tokenId,
-      ownerAddr: msg.sender,
-      listPrice: _listPrice,
-      promoterReward: _promoterReward,
-      buyerReward: _buyerReward,
-      resourceUri: ERC721(_tokenAddr).tokenURI(_tokenId)
-    });
     emit NewListing(listingId);
     return listingId++;
   }
@@ -93,6 +102,7 @@ contract WagmiContract is ReentrancyGuard {
     view
     returns (Listing memory)
   {
+    require(_listingId <= listingId, "Invalid listing id");
     require(listings[_listingId].exists == true, "listing does not exist");
     return listings[_listingId];
   }
@@ -102,6 +112,7 @@ contract WagmiContract is ReentrancyGuard {
    * @param _listingId id of the listing.
    */
   function removeListing(uint256 _listingId) external {
+    require(_listingId <= listingId, "Invalid listing id");
     require(listings[_listingId].exists == true, "listing does not exist");
     delete listings[_listingId];
   }
@@ -120,7 +131,7 @@ contract WagmiContract is ReentrancyGuard {
    * is used if the NFT is bought without a promoter address.
    */
   function buyNFT(uint256 _listingId, address _promoterAddr) external payable nonReentrant {
-    require(_listingId <= listingId, "Invalid _listingId");
+    require(_listingId <= listingId, "Invalid listing id");
     
     Listing storage listing = listings[_listingId];
     require(listing.exists, "Listing does not exist anymore");
